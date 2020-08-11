@@ -13,7 +13,7 @@ import { OpaqueInterpolation } from 'react-spring/web';
 interface Props {
   className?: string;
   style?: object;
-  children: Array<React.ReactChild>;
+  children: React.ReactChildren | React.ReactChild
 }
 
 export interface CarouselRefType {
@@ -24,8 +24,6 @@ const Carousel = React.forwardRef<CarouselRefType, Props>((props, ref) => {
 
   const {
     children,
-    className,
-    style,
   } = props;
 
   const [isMounted, setMounted] = useState(false);
@@ -33,53 +31,58 @@ const Carousel = React.forwardRef<CarouselRefType, Props>((props, ref) => {
 
   const [{ ref: containerRef }, { width }] = useMeasure(isMounted);
 
+  const ownRef = useRef({
+    index: 0,
+    length: 0,
+    goToIndex(i: number) {
+      if (!itemWidth) {
+        return;
+      }
+      ownRef.current.index = clamp(i, 0, ownRef.current.length - 1);
+      setAnimatedProps({
+        x: ownRef.current.index * -itemWidth,
+      });
+    },
+    previous: () => {
+      ownRef.current.goToIndex(ownRef.current.index - 1);
+    },
+    next: () => {
+      ownRef.current.goToIndex(ownRef.current.index + 1);
+    }
+  });
+
+  if (ref && 'current' in ref) {
+    ref.current = ownRef.current;
+  }
+
   useEffect(() => {
     setMounted(true);
   }, []);
 
   useEffect(() => {
-    if (containerRef.current && width && containerRef.current.firstElementChild) {
-      setItemWidth(containerRef.current.firstElementChild.getBoundingClientRect().width * 100 / width);
+    if (containerRef.current && width && containerRef.current.children) {
+      let node: Element = containerRef.current;
+      while (ownRef.current.length === 0 && node) {
+        if (node.children.length > 1) {
+          ownRef.current.length = node.children.length;
+        }
+        else {
+          node = node.children[0]
+        }
+      }
+
+      if (!node) {
+        throw Error('Carousel could not find an array of child elements.')
+      }
+
+      setItemWidth(node.children[0].getBoundingClientRect().width * 100 / width);
     }
   }, [containerRef, width]);
-
-  const index = useRef(0);
-
-  if (!children || children.length) {
-    throw new Error('You need to pass an array of elements as children within the Carousel');
-  }
-
-  const previous = () => {
-    goToIndex(index.current - 1);
-  };
-
-  const next = () => {
-    goToIndex(index.current + 1);
-  };
-
-  if (ref && 'current' in ref) {
-    ref.current = {
-      next,
-      previous,
-      goToIndex,
-    };
-  }
 
   const [animatedProps, setAnimatedProps] = useSpring(() => ({
     x: 0,
     scale: 1
   }));
-
-  function goToIndex(i: number) {
-    if (!itemWidth) {
-      return;
-    }
-    index.current = clamp(i, 0, children.length - 1);
-    setAnimatedProps({
-      x: index.current * -itemWidth,
-    });
-  }
-
 
   const bind = useDrag((state) => {
     const {
@@ -87,7 +90,13 @@ const Carousel = React.forwardRef<CarouselRefType, Props>((props, ref) => {
       movement,
       direction,
       cancel,
+      event,
+      first,
     } = state;
+
+    if (first && event) {
+      event.preventDefault()
+    }
 
     const xDir = direction[0]
 
@@ -95,39 +104,35 @@ const Carousel = React.forwardRef<CarouselRefType, Props>((props, ref) => {
       if (cancel) {
         cancel();
       }
-      index.current = clamp(index.current + (xDir > 0 ? -1 : 1), 0, children.length - 1);
+      ownRef.current.index = clamp(ownRef.current.index + (xDir > 0 ? -1 : 1), 0, ownRef.current.length - 1);
     }
-
-    // if (i < index.current - 1 || i > index.current + 1) {
-    //   return {
-    //     display: 'none'
-    //   }
-    // }
 
     if (!itemWidth) {
       // We just are not ready yet.
       return;
     }
 
-    const x = index.current * -itemWidth + (down ? (movement[0] / window.innerWidth) * itemWidth : 0);
+    const x = ownRef.current.index * -itemWidth + (down ? (movement[0] / window.innerWidth) * itemWidth : 0);
     const scale = down ? 1 - movement[0] / (window.innerWidth / 2) : 1;
     setAnimatedProps({ x, scale });
   })
 
   return (
-    <animated.div
-      ref={containerRef}
-      className={className}
-      {...bind()}
-      style={{
-        ...style,
-        transform: (animatedProps.x as OpaqueInterpolation<number>).interpolate((x: number) => {
-          return `translate3d(${x}%,0,0)`;
-        })
-      }}
-    >
-      {children}
-    </animated.div>
+    <div style={{ overflow: 'hidden' }}>
+      <animated.div
+        ref={containerRef}
+        {...bind()}
+        style={{
+          touchAction: 'pan-x',
+          msTouchAction: 'pan-x',
+          transform: (animatedProps.x as OpaqueInterpolation<number>).interpolate((x: number) => {
+            return `translate3d(${x}%,0,0)`;
+          })
+        }}
+      >
+        {children}
+      </animated.div>
+    </div>
   );
 })
 

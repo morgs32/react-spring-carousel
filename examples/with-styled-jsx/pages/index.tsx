@@ -1,6 +1,7 @@
 import Head from 'next/head'
 import React, { useRef } from 'react';
-import Carousel from 'react-spring-carousel';
+import Row from '../components/Row';
+import Carousel from 'react-spring-universal-carousel';
 
 const Home: React.FC = () => {
 
@@ -14,69 +15,74 @@ const Home: React.FC = () => {
         <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
       </Head>
 
-      <main>
-        <div
-          style={{ overflow: 'hidden', padding: 16, height: '100vh', display: 'flex', justifyContent: 'center', flexDirection: 'column' }}
-        >
-          <Carousel
-            ref={ref}
-            style={{
-              display: 'flex',
-              flexDirection: 'row',
-              flexWrap: 'nowrap',
-              margin: -16,
-            }}
-          >
-            <div className="col" style={{ flexShrink: 0, padding: 16 }}>
-              <div style={{ border: '1px solid black', borderRadius: 4, height: '100%', }}>
-                <div style={{ padding: 16 }}>
-                  <h3>Documentation &rarr;</h3>
-                  <p>Find in-depth information about Next.js features and API.</p>
-                </div>
-              </div>
-            </div>
+      <main className="main">
 
-            <div className="col" style={{ flexShrink: 0, padding: 16 }}>
-              <div style={{ border: '1px solid black', borderRadius: 4, height: '100%', }}>
-                <div style={{ padding: 16 }}>
-                  <h3>Learn &rarr;</h3>
-                  <p>Learn about Next.js in an interactive course with quizzes!</p>
-                </div>
-              </div>
-            </div>
 
-            <div className="col" style={{ flexShrink: 0, padding: 16 }}>
-              <div style={{ border: '1px solid black', borderRadius: 4, height: '100%', }}>
-                <div style={{ padding: 16 }}>
-                  <h3>Examples &rarr;</h3>
-                  <p>Discover and deploy boilerplate example Next.js projects.</p>
-                </div>
-              </div>
-            </div>
+        <div className="p-x">
+          <h1>
+            React Spring
+            <br />
+            Universal Carousel
+          </h1>
 
-            <div className="col" style={{ flexShrink: 0, padding: 16 }}>
-              <div style={{ border: '1px solid black', borderRadius: 4, height: '100%', }}>
-                <div style={{ padding: 16 }}>
-                  <h3>Deploy &rarr;</h3>
-                  <p>
-                    Instantly deploy your Next.js site to a public URL with Vercel.
-                  </p>
-                </div>
-              </div>
-            </div>
-          </Carousel>
+          <h2>
+            Step 1
+          </h2>
+          <p>
+            Make sure your row scrolls effectively first.
+            For example, here is a row of cards <strong>before
+            using the carousel</strong>. It only has
+          </p>
+          <pre>
+            <code>overflow-x: scroll</code>
+          </pre>
         </div>
+
+        <div style={{ overflowX: 'scroll' }}>
+          <div className="p-y p-x">
+            <Row />
+          </div>
+        </div>
+
+        <div className="p-x">
+          <p>
+            If you have trouble, check out the code for this example. You may be forgetting
+            a meta tag like this:
+          </p>
+
+          <pre className="p-y" style={{ overflow: 'scroll' }}>
+            <code>
+              &lt;meta name=&quot;viewport&quot; content=&quot;width=device-width, initial-scale=1, shrink-to-fit=no&quot; /&gt;
+            </code>
+          </pre>
+          <h2>
+            Step 2
+          </h2>
+
+          <p>
+            Once it looks good without the Carousel, just wrap your row component
+            in Carousel
+          </p>
+        </div>
+
+
+        <Carousel ref={ref}>
+          <div className="p-y p-x">
+            <Row />
+          </div>
+        </Carousel>
       </main>
-      
+
       <style jsx>{`
-        .col {
-          width: 100%;
+        .container {
+          background: papayawhip;
         }
-        @media (min-width: 768px) {
-          .col {
-             width: 50%;
-          }
-        } 
+        .main {
+          max-width: 540px;
+          margin: auto;
+          padding: 4rem 0;
+          background: white;
+        }
       `}
       </style>
 
@@ -93,6 +99,15 @@ const Home: React.FC = () => {
           font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto,
             Oxygen, Ubuntu, Cantarell, Fira Sans, Droid Sans, Helvetica Neue,
             sans-serif;
+        }
+        
+        .p-x {
+          padding-left: 1.5rem;
+          padding-right: 1.5rem;
+        }
+        .p-y {
+          padding-top: 1.5rem;
+          padding-bottom: 1.5rem;
         }
 
       `}</style>
