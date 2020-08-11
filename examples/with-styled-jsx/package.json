@@ -12,7 +12,7 @@
     "react": "16.13.1",
     "react-dom": "16.13.1",
     "react-spring": "^8.0.27",
-    "react-spring-universal-carousel": "latest",
+    "react-spring-universal-carousel": "1.0.2-canary.1",
     "react-use-gesture": "^7.0.15"
   }
 }
