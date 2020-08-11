@@ -1,6 +1,6 @@
 {
   "name": "react-spring-universal-carousel",
-  "version": "1.0.2-canary.0",
+  "version": "1.0.2-canary.1",
   "description": "The world's first responsive carousel that can be server side rendered",
   "main": "./dist/index.js",
   "module": "./esm/index.js",
