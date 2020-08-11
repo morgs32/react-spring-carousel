@@ -1,6 +1,6 @@
 import Head from 'next/head'
 import React, { useRef } from 'react';
-import Carousel from '../src/Carousel';
+import Carousel from 'react-spring-carousel';
 
 const Home: React.FC = () => {
 
